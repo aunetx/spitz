@@ -163,4 +163,22 @@ impl NNetwork {
     pub fn learning_rate(&mut self, rate: f64) {
         self.learning_rate = rate
     }
+
+    /// ## Feed forward the network
+    /// Runs the network with given `input`, and results `output`.
+    pub fn feed_forward(&self, inputs: Array2<f64>) -> Vec<Array2<f64>> {
+        let mut x = vec![inputs];
+        let mut z: Array2<f64>;
+        let mut y: Array2<f64>;
+
+        for w in &self.weights {
+            // Weighted average `z = w · x`
+            z = x.last().unwrap().dot(w);
+            // Activation function `y = g(x)`
+            y = activations::relu(z, false);
+            // Append `y` to previous layers
+            x.push(y.clone());
+        }
+        x
+    }
 }

@@ -6,7 +6,7 @@ use spitz::*;
 #[test]
 fn init_architecture() {
     let mut network = NNetwork::new();
-    let arch_list = [10, 40, 5].to_vec();
+    let arch_list = vec![10, 40, 5];
 
     network.init_architecture(arch_list);
 
@@ -88,8 +88,20 @@ fn train_xor() {
     let x = array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
     let y = array![[0.], [1.], [1.], [0.]];
 
-    let mut network = NNetwork::new();
-    network.import_datas(x, y, None);
+    let arch = vec![2, 3, 1];
 
-    assert_eq!(1, 1);
+    let mut network = NNetwork::new();
+    network.import_datas(x.clone(), y, None);
+    network.init_architecture(arch);
+    network.init_weights();
+    network.learning_rate(0.03);
+
+    /*for weight in network.weights.clone() {
+        println!("{}", weight);
+        println!("{:?}", weight.shape());
+    }*/
+
+    let _alternative_input = arr2(&[[0., 1.]]);
+
+    println!("{}", network.feed_forward(x).last().unwrap().clone());
 }
