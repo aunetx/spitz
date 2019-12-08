@@ -29,6 +29,26 @@ fn init_weights() {
 }
 
 #[test]
+fn import_data() {
+    let x = array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
+    let y = array![[0.], [1.], [2.], [3.]];
+
+    let mut network = NNetwork::new();
+    let number = network.import_data(x, y, 0.25);
+
+    println!("number = {}", number.0);
+
+    println!("{}", network.datas.train_x);
+    assert_eq!(network.datas.test_x, array![[3., 4., 5.]]);
+    assert_eq!(network.datas.test_y, array![[3.]]);
+    assert_eq!(
+        network.datas.train_x,
+        array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.]]
+    );
+    assert_eq!(network.datas.train_y, array![[0.], [1.], [2.]]);
+}
+
+#[test]
 fn test_relu() {
     let x: Array2<f64> = array![[-5., 8., -6., 0.], [2., 0., -1., 105.]];
     assert_eq!(
