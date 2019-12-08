@@ -34,9 +34,7 @@ fn import_datas() {
     let y = array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
-    let number = network.import_datas(x, y, 0.25);
-
-    println!("number = {}", number.0);
+    network.import_datas(x, y, Some(0.25));
 
     println!("{}", network.datas.train_x);
     assert_eq!(network.datas.test_x, array![[3., 4., 5.]]);
