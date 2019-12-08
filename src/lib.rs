@@ -23,6 +23,7 @@ pub struct NNetwork {
     pub weights: Weights,
     pub datas: Datas,
     pub learning_rate: f64,
+    pub is_test: bool,
 }
 
 impl Default for NNetwork {
@@ -32,6 +33,7 @@ impl Default for NNetwork {
             architecture: Vec::new(),
             datas: Datas::new(),
             learning_rate: 0.03,
+            is_test: false,
         }
     }
 }
@@ -44,6 +46,7 @@ impl NNetwork {
             architecture: Vec::new(),
             datas: Datas::new(),
             learning_rate: 0.03,
+            is_test: false,
         }
     }
 
@@ -94,16 +97,17 @@ impl NNetwork {
     pub fn import_datas(&mut self, x: Array2<f64>, y: Array2<f64>, test_ratio: Option<f64>) {
         // Panics test
         match test_ratio {
-            None => (),
+            None => self.is_test = false,
             Some(test_ratio) => {
                 if (test_ratio <= 0.) || (test_ratio >= 1.) {
                     panic!(
                         "test ratio must be between 0.0 and 1.0 (ratio = {})",
                         test_ratio
                     );
-                }
+                };
+                self.is_test = true
             }
-        }
+        };
         if x.shape()[0] != y.shape()[0] {
             panic!(
                 "x and y must be aligned ({} != {})",
