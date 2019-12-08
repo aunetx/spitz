@@ -71,6 +71,14 @@ fn set_learning_rate() {
 }
 
 #[test]
+fn set_epochs() {
+    let mut network = NNetwork::new();
+
+    network.epochs(15);
+    assert_eq!(network.epochs, 15);
+}
+
+#[test]
 fn test_relu() {
     let x: Array2<f64> = array![[-5., 8., -6., 0.], [2., 0., -1., 105.]];
     assert_eq!(
@@ -95,13 +103,14 @@ fn train_xor() {
     network.init_architecture(arch);
     network.init_weights();
     network.learning_rate(0.03);
+    network.epochs(5);
 
     /*for weight in network.weights.clone() {
         println!("{}", weight);
         println!("{:?}", weight.shape());
     }*/
 
-    let _alternative_input = arr2(&[[0., 1.]]);
-
-    println!("{}", network.feed_forward(x).last().unwrap().clone());
+    let grads = network.fit();
+    println!("{:?}", grads);
+    assert_eq!(1, 1);
 }

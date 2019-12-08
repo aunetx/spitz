@@ -23,6 +23,7 @@ pub struct NNetwork {
     pub weights: Weights,
     pub datas: Datas,
     pub learning_rate: f64,
+    pub epochs: usize,
     pub is_test: bool,
 }
 
@@ -33,6 +34,7 @@ impl Default for NNetwork {
             architecture: Vec::new(),
             datas: Datas::new(),
             learning_rate: 0.03,
+            epochs: 15,
             is_test: false,
         }
     }
@@ -46,6 +48,7 @@ impl NNetwork {
             architecture: Vec::new(),
             datas: Datas::new(),
             learning_rate: 0.03,
+            epochs: 15,
             is_test: false,
         }
     }
@@ -79,6 +82,7 @@ impl NNetwork {
         self.weights = weights;
     }
 
+    // TODO set dataset as `view only`
     /// ## Imports data from `x` and `y` 2D arrays.
     /// `test_ratio` the ratio data extracted that is used to test the network, what's left is used to train the network.\
     /// Usually, `test_ratio` is :
@@ -164,10 +168,15 @@ impl NNetwork {
         self.learning_rate = rate
     }
 
+    /// Set epochs number.
+    pub fn epochs(&mut self, epochs: i32) {
+        self.epochs = epochs as usize
+    }
+
     /// ## Feed forward the network
     /// Runs the network with given `input`, and results `output`.
-    pub fn feed_forward(&self, inputs: Array2<f64>) -> Vec<Array2<f64>> {
-        let mut x = vec![inputs];
+    pub fn feed_forward(&self, inputs: &Array2<f64>) -> Vec<Array2<f64>> {
+        let mut x = vec![inputs.clone()];
         let mut z: Array2<f64>;
         let mut y: Array2<f64>;
 
@@ -180,5 +189,48 @@ impl NNetwork {
             x.push(y.clone());
         }
         x
+    }
+
+    /// ## Train the network
+    /// Trains the network over the previously given datasets
+    pub fn fit(&mut self) {
+        let mut weights_errors: Weights;
+        for epoch in 0..self.epochs {
+            weights_errors = self.grads();
+            // update weights
+        }
+    }
+
+    /// ## Calculate weights errors
+    pub fn grads(&self) -> Weights {
+        //  Phase I : catch global network error
+        // Forward propagation to get network datas
+        let y: Weights = self.feed_forward(&self.datas.train_x);
+        // Calculate global error
+        let mut delta: Array2<f64> = y.last().unwrap().clone() - self.datas.train_y.view();
+
+        //  Phase II : calculate error of output weights layer
+        // TODO create a default grads array (to gain execution speed and readability)
+        let mut grads: Weights = Vec::new();
+        for _ in 0..self.weights.len() {
+            grads.push(array![[]])
+        }
+        assert_eq!(grads.len(), self.weights.len());
+        // TODO verify that we are not out of bounds
+        grads[self.weights.len() - 1] = y[y.len() - 1].clone().t().dot(&delta);
+
+        //  Phase III : backward pass (backpropagation of error)
+        for i in (0..y.len() - 2).rev() {
+            // Calculate errors for each layer
+            println!("{:?}", (0..y.len() - 2).rev());
+            delta = delta.dot(&self.weights[i].t()) * activations::relu(y[i].clone(), true);
+
+            // Calculate errors of weights
+            println!("layer = {}", i);
+            //grads[i] = y[i].t().dot(&delta);
+        }
+
+        // Return grads ( grads / x.len() ?)
+        grads
     }
 }
