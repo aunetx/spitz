@@ -1,7 +1,8 @@
 use ndarray::prelude::Array2;
 
+/// Utilitaries for activation functions.
 mod utils {
-    /// Returns `x` if `x > 0`, else `0`
+    /// Returns `x` if `x > 0`, else `0`.
     pub fn max(x: f64) -> f64 {
         if x < 0. {
             0.
@@ -10,7 +11,7 @@ mod utils {
         }
     }
 
-    /// Returns `1` if `x > 0`, else `0`
+    /// Returns `1` if `x > 0`, else `0`.
     pub fn sup(x: f64) -> f64 {
         if x < 0. {
             0.

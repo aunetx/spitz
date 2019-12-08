@@ -29,12 +29,12 @@ fn init_weights() {
 }
 
 #[test]
-fn import_data() {
+fn import_datas() {
     let x = array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
     let y = array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
-    let number = network.import_data(x, y, 0.25);
+    let number = network.import_datas(x, y, 0.25);
 
     println!("number = {}", number.0);
 
@@ -46,6 +46,15 @@ fn import_data() {
         array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.]]
     );
     assert_eq!(network.datas.train_y, array![[0.], [1.], [2.]]);
+}
+
+#[test]
+#[allow(clippy::float_cmp)]
+fn set_learning_rate() {
+    let mut network = NNetwork::new();
+
+    network.learning_rate(0.1);
+    assert_eq!(network.learning_rate, 0.1);
 }
 
 #[test]

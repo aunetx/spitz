@@ -17,11 +17,12 @@ pub mod activations;
 pub mod architecture;
 use architecture::*;
 
-/// Perceptron constitued of multiple layers
+/// Perceptron constitued of multiple layers.
 pub struct NNetwork {
     pub architecture: Architecture,
     pub weights: Weights,
     pub datas: Datas,
+    pub learning_rate: f64,
 }
 
 impl Default for NNetwork {
@@ -30,21 +31,23 @@ impl Default for NNetwork {
             weights: Vec::new(),
             architecture: Vec::new(),
             datas: Datas::new(),
+            learning_rate: 0.03,
         }
     }
 }
 
 impl NNetwork {
-    /// Returns a new uninitialized NNetwork object
+    /// Returns a new uninitialized NNetwork object.
     pub fn new() -> Self {
         Self {
             weights: Vec::new(),
             architecture: Vec::new(),
             datas: Datas::new(),
+            learning_rate: 0.03,
         }
     }
 
-    /// Inits layers' inputs, size and activation function
+    /// Inits layers' inputs, size and activation function.
     pub fn init_architecture(&mut self, arch_list: Vec<i32>) {
         let mut architecture: Architecture = Architecture::new();
         let mut input = arch_list[0] as usize;
@@ -58,7 +61,7 @@ impl NNetwork {
         self.architecture = architecture
     }
 
-    /// Inits weights' matrices
+    /// Inits weights' matrices.
     pub fn init_weights(&mut self) {
         let mut weights: Weights = Vec::new();
         for layer in &self.architecture {
@@ -88,7 +91,7 @@ impl NNetwork {
     /// ### Panics
     /// Panics if `test_ratio` is not bewteen `0` and `1`.\
     /// Panics if `x` and `y` are not the same shape.
-    pub fn import_data(&mut self, x: Array2<f64>, y: Array2<f64>, test_ratio: f64) -> (i32, i32) {
+    pub fn import_datas(&mut self, x: Array2<f64>, y: Array2<f64>, test_ratio: f64) -> (i32, i32) {
         // Panics test
         if (test_ratio <= 0.) || (test_ratio >= 1.) {
             panic!(
@@ -133,5 +136,10 @@ impl NNetwork {
             .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
             .to_owned();
         (train_number, test_number)
+    }
+
+    /// Set learning rate.
+    pub fn learning_rate(&mut self, rate: f64) {
+        self.learning_rate = rate
     }
 }
