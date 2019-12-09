@@ -196,41 +196,52 @@ impl NNetwork {
     pub fn fit(&mut self) {
         let mut weights_errors: Weights;
         for epoch in 0..self.epochs {
+            // Get errors for each layer
             weights_errors = self.grads();
-            // update weights
+
+            // Update weights for each layer
+            #[allow(clippy::needless_range_loop)]
+            for id in 0..self.weights.len() - 1 {
+                assert_eq!(weights_errors[id].shape(), self.weights[id].shape());
+                self.weights[id] =
+                    self.weights[id].clone() - weights_errors[id].mapv(|x| x * self.learning_rate);
+            }
         }
     }
 
     /// ## Calculate weights errors
     pub fn grads(&self) -> Weights {
-        //  Phase I : catch global network error
         // Forward propagation to get network datas
         let y: Weights = self.feed_forward(&self.datas.train_x);
         // Calculate global error
-        let mut delta: Array2<f64> = y.last().unwrap().clone() - self.datas.train_y.view();
+        let mut delta: Array2<f64> = y.last().unwrap().clone() - self.datas.train_y.view(); //.mapv(|a| a.powi(2));
+        println!("Error = {}", delta);
 
-        //  Phase II : calculate error of output weights layer
+        // Calculate error of output weights layer
         // TODO create a default grads array (to gain execution speed and readability)
         let mut grads: Weights = Vec::new();
         for _ in 0..self.weights.len() {
             grads.push(array![[]])
         }
-        assert_eq!(grads.len(), self.weights.len());
+
         // TODO verify that we are not out of bounds
         grads[self.weights.len() - 1] = y[y.len() - 1].clone().t().dot(&delta);
 
-        //  Phase III : backward pass (backpropagation of error)
-        for i in (0..y.len() - 2).rev() {
-            // Calculate errors for each layer
-            println!("{:?}", (0..y.len() - 2).rev());
-            delta = delta.dot(&self.weights[i].t()) * activations::relu(y[i].clone(), true);
+        // Backpropagation of error
+        // TODO make a for-loop for efficiency and readability
+        let mut loop_lenght = grads.len() - 1;
+        while loop_lenght > 0 {
+            delta = delta.dot(&self.weights[loop_lenght].t())
+                * activations::relu(y[loop_lenght].clone(), true);
 
-            // Calculate errors of weights
-            println!("layer = {}", i);
-            //grads[i] = y[i].t().dot(&delta);
+            grads[loop_lenght - 1] = y[loop_lenght - 1].t().dot(&delta);
+            loop_lenght -= 1;
         }
 
         // Return grads ( grads / x.len() ?)
+        for layer in &mut grads {
+            layer.mapv(|x| x / &self.datas.train_x);
+        }
         grads
     }
 }

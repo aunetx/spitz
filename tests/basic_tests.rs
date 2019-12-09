@@ -13,7 +13,6 @@ fn init_architecture() {
     for layer in &network.architecture {
         println!("{:?}", layer);
     }
-    //assert_eq!(1, 2);
 }
 
 #[test]
@@ -96,21 +95,27 @@ fn train_xor() {
     let x = array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
     let y = array![[0.], [1.], [1.], [0.]];
 
-    let arch = vec![2, 3, 1];
+    let arch = vec![2, 40, 50, 1];
 
     let mut network = NNetwork::new();
     network.import_datas(x.clone(), y, None);
     network.init_architecture(arch);
     network.init_weights();
-    network.learning_rate(0.03);
-    network.epochs(5);
+    network.learning_rate(0.3);
+    network.epochs(50);
 
     /*for weight in network.weights.clone() {
         println!("{}", weight);
         println!("{:?}", weight.shape());
     }*/
 
-    let grads = network.fit();
-    println!("{:?}", grads);
-    assert_eq!(1, 1);
+    network.fit();
+
+    let pred = network
+        .feed_forward(&array![[0., 1.]])
+        .last()
+        .unwrap()
+        .clone();
+    println!("PREDICTION = {}", pred);
+    //assert_eq!(array![[1.]], pred);
 }
