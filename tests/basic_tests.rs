@@ -8,7 +8,9 @@ fn init_architecture() {
     let mut network = NNetwork::new();
     let arch_list = vec![10, 40, 5];
 
-    network.init_architecture(arch_list);
+    network.set_architecture(arch_list);
+
+    network.init();
 
     for layer in &network.architecture {
         println!("{:?}", layer);
@@ -20,8 +22,8 @@ fn init_weights() {
     let mut network = NNetwork::new();
     let arch_list = [10, 40, 5].to_vec();
 
-    network.init_architecture(arch_list);
-    network.init_weights();
+    network.set_architecture(arch_list);
+    network.init();
 
     assert_eq!(network.weights[0].shape(), &[10, 40]);
     assert_eq!(network.weights[1].shape(), &[40, 5]);
@@ -99,10 +101,10 @@ fn train_xor() {
 
     let mut network = NNetwork::new();
     network.import_datas(x.clone(), y, None);
-    network.init_architecture(arch);
-    network.init_weights();
+    network.set_architecture(arch);
+    network.init();
     network.learning_rate(0.3);
-    network.epochs(50);
+    network.epochs(500);
 
     /*for weight in network.weights.clone() {
         println!("{}", weight);
