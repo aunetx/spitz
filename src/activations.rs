@@ -36,3 +36,12 @@ pub fn relu(x: Array2<f64>, derivative: bool) -> Array2<f64> {
         x.mapv(utils::sup)
     }
 }
+
+pub fn sigmoid(x: Array2<f64>, derivative: bool) -> Array2<f64> {
+    let sig = |a: f64| 1. / (1. + (-a).exp());
+    if !derivative {
+        x.mapv(|a| sig(a) * (1. - sig(a)))
+    } else {
+        x.mapv(sig)
+    }
+}
