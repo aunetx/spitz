@@ -9,10 +9,11 @@ fn init_architecture() {
     let arch_list = vec![10, 40, 5];
 
     network.set_architecture(arch_list);
-
     network.init();
 
-    for layer in &network.architecture {
+    let arch = network.get_architecture();
+
+    for layer in arch {
         println!("{:?}", layer);
     }
 }
@@ -24,9 +25,10 @@ fn init_weights() {
 
     network.set_architecture(arch_list);
     network.init();
+    let weights = network.get_weights();
 
-    assert_eq!(network.weights[0].shape(), &[10, 40]);
-    assert_eq!(network.weights[1].shape(), &[40, 5]);
+    assert_eq!(weights[0].shape(), &[10, 40]);
+    assert_eq!(weights[1].shape(), &[40, 5]);
 }
 
 #[test]
@@ -37,7 +39,7 @@ fn import_datas() {
     let mut network = NNetwork::new();
     network.import_datas(x, y, Some(0.25));
 
-    assert!(network.is_test);
+    assert!(network.get_is_test());
     assert_eq!(network.datas.test_x, array![[3., 4., 5.]]);
     assert_eq!(network.datas.test_y, array![[3.]]);
     assert_eq!(
@@ -55,7 +57,7 @@ fn import_datas_no_test() {
     let mut network = NNetwork::new();
     network.import_datas(x.clone(), y.clone(), None);
 
-    assert!(!network.is_test);
+    assert!(!network.get_is_test());
     assert_eq!(network.datas.test_x, array![[]]);
     assert_eq!(network.datas.test_y, array![[]]);
     assert_eq!(network.datas.train_x, x);
@@ -84,11 +86,11 @@ fn test_relu() {
     let x: Array2<f64> = array![[-5., 8., -6., 0.], [2., 0., -1., 105.]];
     assert_eq!(
         array![[0., 8., 0., 0.], [2., 0., 0., 105.]],
-        activations::relu(x.clone(), false)
+        maths::activations::relu(x.clone(), false)
     );
     assert_eq!(
         array![[0., 1., 0., 1.], [1., 1., 0., 1.]],
-        activations::relu(x, true)
+        maths::activations::relu(x, true)
     );
 }
 

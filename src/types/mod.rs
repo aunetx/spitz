@@ -1,9 +1,9 @@
-use ndarray::prelude::*;
-use std::fmt;
+use ndarray::prelude::{array, Array2};
 
 // * Layer struct
 /// Structure describing a layer, contains : `input`, `size`, `activation`.\
 /// Mostly used internally.
+#[derive(Clone, Debug)]
 pub struct Layer {
     pub input: usize,
     pub size: usize,
@@ -17,15 +17,6 @@ impl Layer {
             size,
             activation,
         }
-    }
-}
-impl fmt::Debug for Layer {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "[{} neurons, {} input, {:?}]",
-            self.size, self.input, self.activation
-        )
     }
 }
 
@@ -43,17 +34,6 @@ pub struct Datas {
 }
 impl Default for Datas {
     fn default() -> Self {
-        Self {
-            train_x: array![[]],
-            train_y: array![[]],
-            test_x: array![[]],
-            test_y: array![[]],
-        }
-    }
-}
-impl Datas {
-    /// Returns a new empty `Datas` structure.
-    pub fn new() -> Self {
         Self {
             train_x: array![[]],
             train_y: array![[]],

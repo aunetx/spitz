@@ -19,6 +19,11 @@ mod utils {
             1.
         }
     }
+
+    /// Returns `1 / (1 + exp( -x ))`.
+    pub fn sig(a: f64) -> f64 {
+        1. / (1. + (-a).exp())
+    }
 }
 
 /// ### Relu transfert function :
@@ -37,11 +42,18 @@ pub fn relu(x: Array2<f64>, derivative: bool) -> Array2<f64> {
     }
 }
 
+/// ### Sigmoid transfert function :
+/// For each `x` element, returns `1 / (1 + exp( -x ))`.\
+/// One of the most used activations, but does not fit every use case.
+///
+/// #### Mathematically :
+/// `f(x) = 1 / (1 + exp( -x ))`
+/// #### Derivative :
+/// `∂f/∂x = f(x) * (1 - f(x))`
 pub fn sigmoid(x: Array2<f64>, derivative: bool) -> Array2<f64> {
-    let sig = |a: f64| 1. / (1. + (-a).exp());
     if !derivative {
-        x.mapv(|a| sig(a) * (1. - sig(a)))
+        x.mapv(|a| utils::sig(a) * (1. - utils::sig(a)))
     } else {
-        x.mapv(sig)
+        x.mapv(utils::sig)
     }
 }
