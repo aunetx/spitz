@@ -1,6 +1,8 @@
-use crate::*;
+//! ### NNetwork
+//! Provides most parts of `NNetwork` struct, it is the main class of the library.
+
+use crate::{maths, Array2, NNetwork, Weights};
 use maths::*;
-use types::*;
 
 impl Default for NNetwork {
     fn default() -> Self {
@@ -18,7 +20,6 @@ impl Default for NNetwork {
     }
 }
 
-// Main functions
 impl NNetwork {
     /// Returns a new uninitialized NNetwork object.
     pub fn new() -> Self {
@@ -78,7 +79,7 @@ impl NNetwork {
 
     /// ## Train the network
     /// Trains the network over the previously given datasets
-    pub fn fit(&mut self) {
+    pub fn fit(&mut self) -> &mut Self {
         for epoch in 0..self.epochs {
             self.epoch = epoch;
             // Get errors for each layer
@@ -92,59 +93,6 @@ impl NNetwork {
                     self.weights[id].clone() - self.grads[id].mapv(|x| x * self.learning_rate);
             }
         }
-    }
-}
-
-// Public calls
-impl NNetwork {
-    // ## Init each part of the network
-    pub fn init(&mut self) {
-        // Init architecture
-        self.init_architecture();
-        // Init weights
-        self.init_weights();
-        // Init grads
-        for _ in 0..self.weights.len() {
-            self.grads.push(array![[]]);
-        }
-    }
-
-    /// Set learning rate.
-    pub fn learning_rate(&mut self, rate: f64) {
-        self.learning_rate = rate
-    }
-
-    /// Set epochs number.
-    pub fn epochs(&mut self, epochs: i32) {
-        self.epochs = epochs as usize;
-    }
-}
-
-// Private initializaters
-impl NNetwork {
-    /// Inits layers' inputs, size and activation function.
-    fn init_architecture(&mut self) {
-        let mut input = self.layer_structure[0] as usize;
-        let mut arch_list = self.layer_structure.iter();
-        arch_list.next();
-        for l in arch_list {
-            // Define multiple activations
-            self.architecture
-                .push(Layer::new(input, *l as usize, "relu"));
-            input = *l as usize;
-        }
-    }
-
-    /// Inits weights' matrices.
-    fn init_weights(&mut self) {
-        for layer in &self.architecture {
-            let m = layer.input;
-            let n = layer.size;
-
-            // TODO add `multiplier` argument (or nnetwork variable) to initialize weights' values distribution
-            let w: Array2<f64> = Array::random((m, n), Uniform::new(-1., 1.)) * 0.1;
-
-            self.weights.push(w);
-        }
+        self
     }
 }

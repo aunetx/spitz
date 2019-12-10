@@ -1,10 +1,14 @@
+//! ### Interfaces
+//! Provides some functions used to interface with the user and the library.\
+//! Divided in two groups :
+//! - `PublicCalls`, to interface with the user : import datas, set parameters ;
+//! - `PrivateCalls`, provides private functions to init the network.
+
 use crate::types::*;
 use crate::{array, Array, Array2, Axis, RandomExt, Uniform};
 
-/// Public callers (get and set methods)
+/// Public callers (get and set methods).
 pub trait PublicCalls {
-    /// Gives an architecture to the network from an array of `i32`.
-    fn set_architecture(&mut self, arch: Vec<i32>);
     /// ## Imports data from `x` and `y` 2D arrays.
     /// `test_ratio` the ratio data extracted that is used to test the network, what's left is used to train the network.\
     /// Usually, `test_ratio` is :
@@ -20,7 +24,21 @@ pub trait PublicCalls {
     /// ### Panics
     /// Panics if `test_ratio` is not between `0` and `1`.\
     /// Panics if `x` and `y` are not the same shape.
-    fn import_datas(&mut self, x: Array2<f64>, y: Array2<f64>, test_ratio: Option<f64>);
+    fn import_datas(
+        &mut self,
+        x: &Array2<f64>,
+        y: &Array2<f64>,
+        test_ratio: Option<f64>,
+    ) -> &mut Self;
+    /// Gives an architecture to the network from an array of `i32`.
+    fn set_architecture(&mut self, arch: Vec<i32>) -> &mut Self;
+    /// Set learning rate.
+    fn set_learning_rate(&mut self, rate: f64) -> &mut Self;
+    /// Set epochs number.
+    fn set_epochs(&mut self, epochs: i32) -> &mut Self;
+
+    // ## Init each part of the network
+    fn init(&mut self) -> &mut Self;
 
     /// Returns architecture of given network.
     fn get_architecture(&self) -> Architecture;
@@ -31,11 +49,13 @@ pub trait PublicCalls {
 }
 
 impl PublicCalls for crate::NNetwork {
-    fn set_architecture(&mut self, arch: Vec<i32>) {
-        self.layer_structure = arch;
-    }
     // TODO set dataset as `view only`
-    fn import_datas(&mut self, x: Array2<f64>, y: Array2<f64>, test_ratio: Option<f64>) {
+    fn import_datas(
+        &mut self,
+        x: &Array2<f64>,
+        y: &Array2<f64>,
+        test_ratio: Option<f64>,
+    ) -> &mut Self {
         // Panics test
         match test_ratio {
             None => self.is_test = false,
@@ -63,8 +83,8 @@ impl PublicCalls for crate::NNetwork {
             None => {
                 self.datas.test_x = array![[]];
                 self.datas.test_y = array![[]];
-                self.datas.train_x = x;
-                self.datas.train_y = y;
+                self.datas.train_x = x.to_owned();
+                self.datas.train_y = y.to_owned();
             }
             // In case we want a test dataset given by ratio
             Some(test_ratio) => {
@@ -98,22 +118,42 @@ impl PublicCalls for crate::NNetwork {
                     .to_owned();
             }
         };
+        self
+    }
+    fn set_architecture(&mut self, arch: Vec<i32>) -> &mut Self {
+        self.layer_structure = arch;
+        self
+    }
+    fn set_learning_rate(&mut self, rate: f64) -> &mut Self {
+        self.learning_rate = rate;
+        self
+    }
+    fn set_epochs(&mut self, epochs: i32) -> &mut Self {
+        self.epochs = epochs as usize;
+        self
+    }
+    fn init(&mut self) -> &mut Self {
+        self.init_architecture();
+        self.init_weights();
+        // Init grads array
+        for _ in 0..self.weights.len() {
+            self.grads.push(array![[]]);
+        }
+        self
     }
 
     fn get_architecture(&self) -> Architecture {
         self.architecture.clone()
     }
-
     fn get_weights(&self) -> Weights {
         self.weights.clone()
     }
-
     fn get_is_test(&self) -> bool {
         self.is_test
     }
 }
 
-/// Private callers (initializers)
+/// Private callers (initializers).
 pub trait PrivateCalls {
     /// Inits layers' inputs, size and activation function.
     fn init_architecture(&mut self);

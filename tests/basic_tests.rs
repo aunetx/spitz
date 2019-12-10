@@ -33,8 +33,8 @@ fn init_weights() {
 
 #[test]
 fn import_datas() {
-    let x = array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
-    let y = array![[0.], [1.], [2.], [3.]];
+    let x = &array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
+    let y = &array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
     network.import_datas(x, y, Some(0.25));
@@ -51,17 +51,17 @@ fn import_datas() {
 
 #[test]
 fn import_datas_no_test() {
-    let x = array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
-    let y = array![[0.], [1.], [2.], [3.]];
+    let x = &array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
+    let y = &array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
-    network.import_datas(x.clone(), y.clone(), None);
+    network.import_datas(x, y, None);
 
     assert!(!network.get_is_test());
     assert_eq!(network.datas.test_x, array![[]]);
     assert_eq!(network.datas.test_y, array![[]]);
-    assert_eq!(network.datas.train_x, x);
-    assert_eq!(network.datas.train_y, y);
+    assert_eq!(&network.datas.train_x, x);
+    assert_eq!(&network.datas.train_y, y);
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn import_datas_no_test() {
 fn set_learning_rate() {
     let mut network = NNetwork::new();
 
-    network.learning_rate(0.1);
+    network.set_learning_rate(0.1);
     assert_eq!(network.learning_rate, 0.1);
 }
 
@@ -77,7 +77,7 @@ fn set_learning_rate() {
 fn set_epochs() {
     let mut network = NNetwork::new();
 
-    network.epochs(15);
+    network.set_epochs(15);
     assert_eq!(network.epochs, 15);
 }
 
@@ -96,30 +96,22 @@ fn test_relu() {
 
 #[test]
 fn train_xor() {
-    let x = array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
-    let y = array![[0.], [1.], [1.], [0.]];
-
-    let arch = vec![2, 40, 50, 1];
+    let x = &array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
+    let y = &array![[0.], [1.], [1.], [0.]];
 
     let mut network = NNetwork::new();
-    network.import_datas(x.clone(), y, None);
-    network.set_architecture(arch);
-    network.init();
-    network.learning_rate(0.3);
-    network.epochs(500);
-
-    /*for weight in network.weights.clone() {
-        println!("{}", weight);
-        println!("{:?}", weight.shape());
-    }*/
-
-    network.fit();
-
     let pred = network
+        .import_datas(x, y, None)
+        .set_architecture(vec![2, 40, 50, 1])
+        .set_learning_rate(0.3)
+        .set_epochs(500)
+        .init()
+        .fit()
         .feed_forward(&array![[0., 1.]])
         .last()
         .unwrap()
         .clone();
+
     println!("PREDICTION = {}", pred);
     //assert_eq!(array![[1.]], pred);
 }

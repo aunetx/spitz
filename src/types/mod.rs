@@ -26,6 +26,7 @@ pub type Weights = Vec<Array2<f64>>;
 // * Datas struct
 /// Structure describing training and test dataset.\
 /// To set it, use `NNetwork.import_datas`.
+#[derive(Debug)]
 pub struct Datas {
     pub train_x: Array2<f64>,
     pub train_y: Array2<f64>,

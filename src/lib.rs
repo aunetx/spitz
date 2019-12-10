@@ -15,8 +15,7 @@ use ndarray_rand::RandomExt;
 mod interfaces;
 pub mod maths;
 pub mod nnetwork;
-pub mod types;
-
+mod types;
 pub use interfaces::{PrivateCalls, PublicCalls};
 use types::*;
 
@@ -28,8 +27,8 @@ pub struct NNetwork {
     // TODO maybe make datas private (and provide call)
     pub datas: Datas,
     // Private; is used internally
-    // TODO make them private
     is_test: bool,
+    /// Call with
     weights: Weights,
     architecture: Architecture,
     epoch: usize,
