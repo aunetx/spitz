@@ -36,6 +36,10 @@ pub trait PublicCalls {
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self;
     /// Set epochs number.
     fn set_epochs(&mut self, epochs: i32) -> &mut Self;
+    /// Add a layer to the architecture
+    fn add_layer(&mut self, neurons: usize, activation: &'static str) -> &mut Self;
+    /// Define input layer size of the architecture
+    fn input_layer(&mut self, neurons: usize) -> &mut Self;
 
     // ## Init each part of the network
     fn init(&mut self) -> &mut Self;
@@ -132,8 +136,17 @@ impl PublicCalls for crate::NNetwork {
         self.epochs = epochs as usize;
         self
     }
+    fn add_layer(&mut self, neurons: usize, activation: &'static str) -> &mut Self {
+        match self.architecture.add_layer(neurons, activation) {
+            Ok(()) => self,
+            Err(e) => panic!("`add_layer` : {}", e),
+        }
+    }
+    fn input_layer(&mut self, neurons: usize) -> &mut Self {
+        self.architecture.input_layer(neurons);
+        self
+    }
     fn init(&mut self) -> &mut Self {
-        self.init_architecture();
         self.init_weights();
         // Init grads array
         for _ in 0..self.weights.len() {
@@ -155,35 +168,19 @@ impl PublicCalls for crate::NNetwork {
 
 /// Private callers (initializers).
 pub trait PrivateCalls {
-    /// Inits layers' inputs, size and activation function.
-    fn init_architecture(&mut self);
-
     /// Inits weights' matrices.
     fn init_weights(&mut self);
 }
 
 impl PrivateCalls for crate::NNetwork {
-    /// Inits layers' inputs, size and activation function.
-    fn init_architecture(&mut self) {
-        let mut input = self.layer_structure[0] as usize;
-        let mut arch_list = self.layer_structure.iter();
-        arch_list.next();
-        for l in arch_list {
-            // Define multiple activations
-            self.architecture
-                .push(Layer::new(input, *l as usize, "relu"));
-            input = *l as usize;
-        }
-    }
-
     /// Inits weights' matrices.
     fn init_weights(&mut self) {
-        for layer in &self.architecture {
+        for layer in &self.architecture.layers {
             let m = layer.input;
             let n = layer.size;
 
-            // TODO add `multiplier` argument (or nnetwork variable) to initialize weights' values distribution
-            let w: Array2<f64> = Array::random((m, n), Uniform::new(-1., 1.)) * 0.1;
+            let w: Array2<f64> =
+                Array::random((m, n), Uniform::new(-1., 1.)) * crate::WEIGHTS_INIT_MULTIPLIER;
 
             self.weights.push(w);
         }

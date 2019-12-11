@@ -4,6 +4,10 @@
 #![crate_type = "lib"]
 #![forbid(unsafe_code)]
 
+const WEIGHTS_INIT_MULTIPLIER: f64 = 0.1;
+const DEFAULT_LN: f64 = 0.03;
+const DEFAULT_EPOCHS: usize = 15;
+
 // ndarray
 use ndarray::prelude::*;
 
@@ -20,6 +24,7 @@ pub use interfaces::{PrivateCalls, PublicCalls};
 use types::*;
 
 /// Perceptron constitued of multiple layers.
+#[derive(Clone)]
 pub struct NNetwork {
     pub layer_structure: Vec<i32>,
     pub learning_rate: f64,

@@ -1,4 +1,4 @@
-use ndarray::prelude::{array, Array2};
+use ndarray::prelude::Array2;
 
 // * Layer struct
 /// Structure describing a layer, contains : `input`, `size`, `activation`.\
@@ -20,26 +20,53 @@ impl Layer {
     }
 }
 
-pub type Architecture = Vec<Layer>;
+// * Architecture struct
+#[derive(Debug, Clone)]
+pub struct Architecture {
+    pub layers: Vec<Layer>,
+    input_layer_size: Option<usize>,
+}
+impl Default for Architecture {
+    fn default() -> Self {
+        Self {
+            layers: Default::default(),
+            input_layer_size: None,
+        }
+    }
+}
+
+impl Architecture {
+    // TODO auto-detect input layer size
+    pub fn add_layer(&mut self, neurons: usize, activation: &'static str) -> Result<(), &str> {
+        let input: usize = match self.layers.last() {
+            Some(l) => l.size,
+            None => {
+                match self.input_layer_size {
+                    Some(n) => n,
+                    None => return Err("cannot determine input layer size. Please set it with _network_.input_layer(size)")
+                }
+            },
+        };
+        self.layers.push(Layer::new(input, neurons, activation));
+        println!("PASSED");
+        Ok(())
+    }
+
+    pub fn input_layer(&mut self, neurons: usize) {
+        self.input_layer_size = Some(neurons);
+    }
+}
+
+// * Weights type
 pub type Weights = Vec<Array2<f64>>;
 
 // * Datas struct
 /// Structure describing training and test dataset.\
 /// To set it, use `NNetwork.import_datas`.
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Datas {
     pub train_x: Array2<f64>,
     pub train_y: Array2<f64>,
     pub test_x: Array2<f64>,
     pub test_y: Array2<f64>,
-}
-impl Default for Datas {
-    fn default() -> Self {
-        Self {
-            train_x: array![[]],
-            train_y: array![[]],
-            test_x: array![[]],
-            test_y: array![[]],
-        }
-    }
 }

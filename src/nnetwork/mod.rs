@@ -2,7 +2,7 @@
 //! Provides most parts of `NNetwork` struct, it is the main class of the library.
 
 use crate::{maths, Array2, NNetwork, Weights};
-use maths::*;
+use maths::activations;
 
 impl Default for NNetwork {
     fn default() -> Self {
@@ -12,9 +12,9 @@ impl Default for NNetwork {
             weights: Default::default(),
             datas: Default::default(),
             grads: Default::default(),
-            learning_rate: 0.03,
+            learning_rate: crate::DEFAULT_LN,
+            epochs: crate::DEFAULT_EPOCHS,
             is_test: false,
-            epochs: 15,
             epoch: 0,
         }
     }
@@ -52,7 +52,7 @@ impl NNetwork {
         // Calculate global error
         let mut delta: Array2<f64> = y.last().unwrap().clone() - self.datas.train_y.view(); //.mapv(|a| a.powi(2));
 
-        println!("Error = {}", delta);
+        println!("Error for epoch {} = {}", self.epoch, delta);
 
         // Calculate error of output weights layer
 

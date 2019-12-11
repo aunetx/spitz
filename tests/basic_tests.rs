@@ -4,16 +4,16 @@ use ndarray::prelude::*;
 use spitz::*;
 
 #[test]
-fn init_architecture() {
+fn add_layer() {
     let mut network = NNetwork::new();
-    let arch_list = vec![10, 40, 5];
 
-    network.set_architecture(arch_list);
-    network.init();
+    network
+        .input_layer(10)
+        .add_layer(50, "relu")
+        .add_layer(40, "sigmoid")
+        .init();
 
-    let arch = network.get_architecture();
-
-    for layer in arch {
+    for layer in network.get_architecture().layers {
         println!("{:?}", layer);
     }
 }
@@ -21,10 +21,12 @@ fn init_architecture() {
 #[test]
 fn init_weights() {
     let mut network = NNetwork::new();
-    let arch_list = [10, 40, 5].to_vec();
 
-    network.set_architecture(arch_list);
-    network.init();
+    network
+        .input_layer(10)
+        .add_layer(40, "relu")
+        .add_layer(5, "sigmoid")
+        .init();
     let weights = network.get_weights();
 
     assert_eq!(weights[0].shape(), &[10, 40]);
@@ -102,7 +104,10 @@ fn train_xor() {
     let mut network = NNetwork::new();
     let pred = network
         .import_datas(x, y, None)
-        .set_architecture(vec![2, 40, 50, 1])
+        .input_layer(2)
+        .add_layer(40, "relu")
+        .add_layer(50, "sigmoid")
+        .add_layer(1, "sigmoid")
         .set_learning_rate(0.3)
         .set_epochs(500)
         .init()
