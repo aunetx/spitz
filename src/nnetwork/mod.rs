@@ -56,7 +56,6 @@ impl NNetwork {
 
         // Calculate error of output weights layer
 
-        // TODO verify that we are not out of bounds
         self.grads[self.weights.len() - 1] = y[y.len() - 1].clone().t().dot(&delta);
 
         // Backpropagation of error

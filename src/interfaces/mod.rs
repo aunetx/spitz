@@ -53,7 +53,6 @@ pub trait PublicCalls {
 }
 
 impl PublicCalls for crate::NNetwork {
-    // TODO set dataset as `view only`
     fn import_datas(
         &mut self,
         x: &Array2<f64>,

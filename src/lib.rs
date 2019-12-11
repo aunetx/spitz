@@ -29,7 +29,6 @@ pub struct NNetwork {
     pub layer_structure: Vec<i32>,
     pub learning_rate: f64,
     pub epochs: usize,
-    // TODO maybe make datas private (and provide call)
     pub datas: Datas,
     // Private; is used internally
     is_test: bool,
