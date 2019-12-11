@@ -3,6 +3,7 @@ use ndarray::prelude::Array2;
 /// Utilitaries for activation functions.
 mod utils {
     /// Returns `x` if `x > 0`, else `0`.
+    #[inline]
     pub fn max(x: f64) -> f64 {
         if x < 0. {
             0.
@@ -12,6 +13,7 @@ mod utils {
     }
 
     /// Returns `1` if `x > 0`, else `0`.
+    #[inline]
     pub fn sup(x: f64) -> f64 {
         if x < 0. {
             0.
@@ -21,6 +23,7 @@ mod utils {
     }
 
     /// Returns `1 / (1 + exp( -x ))`.
+    #[inline]
     pub fn sig(a: f64) -> f64 {
         1. / (1. + (-a).exp())
     }

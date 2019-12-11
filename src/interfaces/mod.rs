@@ -5,7 +5,7 @@
 //! - `PrivateCalls`, provides private functions to init the network.
 
 use crate::types::*;
-use crate::{array, Array, Array2, Axis, RandomExt, Uniform};
+use crate::{array, log::*, maths, Array, Array2, Axis, RandomExt, Uniform};
 
 /// Public callers (get and set methods).
 pub trait PublicCalls {
@@ -30,14 +30,12 @@ pub trait PublicCalls {
         y: &Array2<f64>,
         test_ratio: Option<f64>,
     ) -> &mut Self;
-    /// Gives an architecture to the network from an array of `i32`.
-    fn set_architecture(&mut self, arch: Vec<i32>) -> &mut Self;
     /// Set learning rate.
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self;
     /// Set epochs number.
     fn set_epochs(&mut self, epochs: i32) -> &mut Self;
     /// Add a layer to the architecture
-    fn add_layer(&mut self, neurons: usize, activation: &'static str) -> &mut Self;
+    fn add_layer(&mut self, neurons: usize, activation: maths::Activation) -> &mut Self;
     /// Define input layer size of the architecture
     fn input_layer(&mut self, neurons: usize) -> &mut Self;
 
@@ -79,6 +77,7 @@ impl PublicCalls for crate::NNetwork {
                 y.shape()[0]
             )
         };
+        trace!("Test ratio = {:?}", test_ratio);
 
         // Extract datas and set them
         match test_ratio {
@@ -123,26 +122,32 @@ impl PublicCalls for crate::NNetwork {
         };
         self
     }
-    fn set_architecture(&mut self, arch: Vec<i32>) -> &mut Self {
-        self.layer_structure = arch;
-        self
-    }
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self {
         self.learning_rate = rate;
+        trace!("Learning rate set : {:?}", rate);
         self
     }
     fn set_epochs(&mut self, epochs: i32) -> &mut Self {
         self.epochs = epochs as usize;
+        trace!("Epochs number set : {:?}", epochs);
         self
     }
-    fn add_layer(&mut self, neurons: usize, activation: &'static str) -> &mut Self {
-        match self.architecture.add_layer(neurons, activation) {
-            Ok(()) => self,
+    fn add_layer(&mut self, neurons: usize, activation: maths::Activation) -> &mut Self {
+        match self.architecture.add_layer(neurons, activation.clone()) {
+            Ok(()) => {
+                trace!(
+                    "Adding layer with {:?} neurons and activation {:?}",
+                    neurons,
+                    activation
+                );
+                self
+            }
             Err(e) => panic!("`add_layer` : {}", e),
         }
     }
     fn input_layer(&mut self, neurons: usize) -> &mut Self {
         self.architecture.input_layer(neurons);
+        trace!("Input layer set with {:?} neurons", neurons);
         self
     }
     fn init(&mut self) -> &mut Self {
@@ -151,6 +156,7 @@ impl PublicCalls for crate::NNetwork {
         for _ in 0..self.weights.len() {
             self.grads.push(array![[]]);
         }
+        trace!("Initiated network");
         self
     }
 

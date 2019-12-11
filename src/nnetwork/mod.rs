@@ -1,13 +1,11 @@
 //! ### NNetwork
 //! Provides most parts of `NNetwork` struct, it is the main class of the library.
 
-use crate::{maths, Array2, NNetwork, Weights};
-use maths::activations;
+use crate::{log::*, Array2, NNetwork, Weights};
 
 impl Default for NNetwork {
     fn default() -> Self {
         Self {
-            layer_structure: Default::default(),
             architecture: Default::default(),
             weights: Default::default(),
             datas: Default::default(),
@@ -33,11 +31,11 @@ impl NNetwork {
         let mut z: Array2<f64>;
         let mut y: Array2<f64>;
 
-        for w in &self.weights {
+        for (id, w) in self.weights.iter().enumerate() {
             // Weighted average `z = w · x`
             z = x.last().unwrap().dot(w);
             // Activation function `y = g(x)`
-            y = activations::relu(z, false);
+            y = (self.architecture.layers[id].activation)(z, true);
             // Append `y` to previous layers
             x.push(y.clone());
         }
@@ -52,7 +50,7 @@ impl NNetwork {
         // Calculate global error
         let mut delta: Array2<f64> = y.last().unwrap().clone() - self.datas.train_y.view(); //.mapv(|a| a.powi(2));
 
-        println!("Error for epoch {} = {}", self.epoch, delta);
+        // ! info!("Error for epoch {} :\n{}\n", self.epoch, delta);
 
         // Calculate error of output weights layer
 
@@ -63,7 +61,13 @@ impl NNetwork {
         let mut loop_lenght = self.grads.len() - 1;
         while loop_lenght > 0 {
             delta = delta.dot(&self.weights[loop_lenght].t())
-                * activations::relu(y[loop_lenght].clone(), true);
+                * (self.architecture.layers[loop_lenght].activation)(y[loop_lenght].clone(), true);
+            // TODO verify that the activation used is the same as the derivative used
+            // ! Verify also that it is the one that the user defined
+            debug!(
+                "Layer activation : {:?}\nUsed activation : {:?}",
+                loop_lenght, self.architecture.layers[loop_lenght].activation
+            );
 
             self.grads[loop_lenght - 1] = y[loop_lenght - 1].t().dot(&delta);
             loop_lenght -= 1;

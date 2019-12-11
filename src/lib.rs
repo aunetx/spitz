@@ -15,18 +15,21 @@ use ndarray::prelude::*;
 use ndarray_rand::rand_distr::Uniform;
 use ndarray_rand::RandomExt;
 
+// log
+extern crate log;
+
 // Internal files
 mod interfaces;
 pub mod maths;
 pub mod nnetwork;
 mod types;
 pub use interfaces::{PrivateCalls, PublicCalls};
+pub use maths::Activation;
 use types::*;
 
 /// Perceptron constitued of multiple layers.
 #[derive(Clone)]
 pub struct NNetwork {
-    pub layer_structure: Vec<i32>,
     pub learning_rate: f64,
     pub epochs: usize,
     pub datas: Datas,

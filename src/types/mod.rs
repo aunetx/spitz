@@ -1,3 +1,4 @@
+use crate::maths;
 use ndarray::prelude::Array2;
 
 // * Layer struct
@@ -7,15 +8,15 @@ use ndarray::prelude::Array2;
 pub struct Layer {
     pub input: usize,
     pub size: usize,
-    pub activation: &'static str,
+    pub activation: maths::TransfertFunction,
 }
 impl Layer {
     /// Returns a new `Layer` structure with given `input`, `size` and `activation`.
-    pub fn new(input: usize, size: usize, activation: &'static str) -> Self {
+    pub fn new(input: usize, size: usize, activation: maths::Activation) -> Self {
         Self {
             input,
             size,
-            activation,
+            activation: maths::Activation::match_activation(activation),
         }
     }
 }
@@ -34,10 +35,9 @@ impl Default for Architecture {
         }
     }
 }
-
 impl Architecture {
     // TODO auto-detect input layer size
-    pub fn add_layer(&mut self, neurons: usize, activation: &'static str) -> Result<(), &str> {
+    pub fn add_layer(&mut self, neurons: usize, activation: maths::Activation) -> Result<(), &str> {
         let input: usize = match self.layers.last() {
             Some(l) => l.size,
             None => {
@@ -48,7 +48,6 @@ impl Architecture {
             },
         };
         self.layers.push(Layer::new(input, neurons, activation));
-        println!("PASSED");
         Ok(())
     }
 

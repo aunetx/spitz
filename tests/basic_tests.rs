@@ -1,4 +1,5 @@
 extern crate ndarray;
+extern crate simple_logger;
 extern crate spitz;
 use ndarray::prelude::*;
 use spitz::*;
@@ -9,8 +10,8 @@ fn add_layer() {
 
     network
         .input_layer(10)
-        .add_layer(50, "relu")
-        .add_layer(40, "sigmoid")
+        .add_layer(50, Activation::Relu)
+        .add_layer(40, Activation::Sigmoid)
         .init();
 
     for layer in network.get_architecture().layers {
@@ -24,8 +25,8 @@ fn init_weights() {
 
     network
         .input_layer(10)
-        .add_layer(40, "relu")
-        .add_layer(5, "sigmoid")
+        .add_layer(40, Activation::Relu)
+        .add_layer(5, Activation::Sigmoid)
         .init();
     let weights = network.get_weights();
 
@@ -98,18 +99,20 @@ fn test_relu() {
 
 #[test]
 fn train_xor() {
+    simple_logger::init_with_level(log::Level::Info).unwrap();
+    log::info!("Begun");
     let x = &array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
     let y = &array![[0.], [1.], [1.], [0.]];
 
     let mut network = NNetwork::new();
-    let pred = network
+    let _pred = network
         .import_datas(x, y, None)
         .input_layer(2)
-        .add_layer(40, "relu")
-        .add_layer(50, "sigmoid")
-        .add_layer(1, "sigmoid")
+        .add_layer(4, Activation::Relu)
+        .add_layer(5, Activation::Sigmoid)
+        .add_layer(1, Activation::Sigmoid)
         .set_learning_rate(0.3)
-        .set_epochs(500)
+        .set_epochs(1500)
         .init()
         .fit()
         .feed_forward(&array![[0., 1.]])
@@ -117,6 +120,6 @@ fn train_xor() {
         .unwrap()
         .clone();
 
-    println!("PREDICTION = {}", pred);
+    log::info!("Done")
     //assert_eq!(array![[1.]], pred);
 }
