@@ -101,7 +101,7 @@ fn test_relu() {
 fn train_xor() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
     log::info!("Begun");
-    let x = &array![[0., 0.], [0., 1.], [1., 0.], [1., 1.],];
+    let x = &array![[0., 0.], [0., 1.], [1., 0.], [1., 1.]];
     let y = &array![[0.], [1.], [1.], [0.]];
 
     let mut network = NNetwork::new();
