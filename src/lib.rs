@@ -25,7 +25,7 @@ pub mod nnetwork;
 mod types;
 pub use interfaces::{PrivateCalls, PublicCalls};
 pub use maths::Activation;
-use types::*;
+pub use types::*;
 
 /// Perceptron constitued of multiple layers.
 #[derive(Clone)]
