@@ -4,7 +4,8 @@
 #![crate_type = "lib"]
 #![forbid(unsafe_code)]
 
-const WEIGHTS_INIT_MULTIPLIER: f64 = 0.1;
+const WEIGHTS_INIT_MIN: f64 = -0.2;
+const WEIGHTS_INIT_MAX: f64 = 0.2;
 const DEFAULT_LN: f64 = 0.03;
 const DEFAULT_EPOCHS: usize = 15;
 

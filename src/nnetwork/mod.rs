@@ -43,6 +43,7 @@ impl NNetwork {
     }
 
     /// ## Calculate weights errors
+    // FIXME change maths operations : does not work well
     pub fn grads(&mut self) {
         // Forward propagation to get network datas
         let y: Weights = self.feed_forward(&self.datas.train_x);
@@ -62,7 +63,7 @@ impl NNetwork {
         while loop_lenght > 0 {
             delta = delta.dot(&self.weights[loop_lenght].t())
                 * (self.architecture.layers[loop_lenght].activation)(y[loop_lenght].clone(), true);
-            // TODO verify that the activation used is the same as the derivative used
+            // FIXME verify that the activation used is the same as the derivative used
             // ! Verify also that it is the one that the user defined
             debug!(
                 "Layer activation : {:?}\nUsed activation : {:?}",
@@ -73,15 +74,15 @@ impl NNetwork {
             loop_lenght -= 1;
         }
 
-        // TODO Return grads ( grads / x.len() ?)
-        let len = self.datas.train_x.len();
+        let len = self.datas.train_x.len() as f64;
         for layer in &mut self.grads {
-            layer.mapv(|x| x / len as f64);
+            layer.mapv(|x| x / len);
         }
     }
 
     /// ## Train the network
     /// Trains the network over the previously given datasets
+    // TODO make training a concurrent process
     pub fn fit(&mut self) -> &mut Self {
         for epoch in 0..self.epochs {
             self.epoch = epoch;
@@ -89,13 +90,21 @@ impl NNetwork {
             self.grads();
 
             // Update weights for each layer
-            #[allow(clippy::needless_range_loop)]
             for id in 0..self.weights.len() - 1 {
                 assert_eq!(self.grads[id].shape(), self.weights[id].shape());
                 self.weights[id] =
                     self.weights[id].clone() - self.grads[id].mapv(|x| x * self.learning_rate);
             }
         }
+        self
+    }
+
+    /// Print weights (used mostly for debugging).
+    pub fn print_weights(&mut self) -> &mut Self {
+        for (id, w) in self.weights.iter().enumerate() {
+            println!("Layer {} to {}\n{:7.4}\n", id, id + 1, w);
+        }
+        println!("\n");
         self
     }
 }
