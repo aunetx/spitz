@@ -30,6 +30,11 @@ pub trait PublicCalls {
         y: &Array2<f64>,
         test_ratio: Option<f64>,
     ) -> &mut Self;
+    // TODO documentation for `import_train_datas` and `import_test_datas`
+    /// Import only training datas
+    fn import_train_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self;
+    /// Import only testing datas
+    fn import_test_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self;
     /// Set learning rate.
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self;
     /// Set epochs number.
@@ -122,6 +127,38 @@ impl PublicCalls for crate::NNetwork {
         };
         self
     }
+    fn import_train_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self {
+        // Panics test
+        if x.shape()[0] != y.shape()[0] {
+            panic!(
+                "x and y must be aligned ({} != {})",
+                x.shape()[0],
+                y.shape()[0]
+            )
+        };
+
+        // Extract datas and set them
+        self.datas.train_x = x.to_owned();
+        self.datas.train_y = y.to_owned();
+
+        self
+    }
+    fn import_test_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self {
+        // Panics test
+        if x.shape()[0] != y.shape()[0] {
+            panic!(
+                "x and y must be aligned ({} != {})",
+                x.shape()[0],
+                y.shape()[0]
+            )
+        };
+
+        // Extract datas and set them
+        self.datas.test_x = x.to_owned();
+        self.datas.test_y = y.to_owned();
+
+        self
+    }
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self {
         self.learning_rate = rate;
         trace!("Learning rate set : {:?}", rate);
@@ -184,8 +221,11 @@ impl PrivateCalls for crate::NNetwork {
             let m = layer.input;
             let n = layer.size;
 
-            let w: Array2<f64> =
-                Array::random((m, n), Uniform::new(-1., 1.)) * crate::WEIGHTS_INIT_MULTIPLIER;
+            let w: Array2<f64> = Array::random(
+                (m, n),
+                // TODO maybe change distribution to use
+                Uniform::new(crate::WEIGHTS_INIT_MIN, crate::WEIGHTS_INIT_MAX),
+            );
 
             self.weights.push(w);
         }
