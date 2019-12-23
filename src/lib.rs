@@ -35,8 +35,6 @@ pub struct NNetwork {
     pub epochs: usize,
     pub datas: Datas,
     // Private; is used internally
-    is_test: bool,
-    /// Call with
     weights: Weights,
     architecture: Architecture,
     epoch: usize,

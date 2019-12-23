@@ -24,12 +24,7 @@ pub trait PublicCalls {
     /// ### Panics
     /// Panics if `test_ratio` is not between `0` and `1`.\
     /// Panics if `x` and `y` are not the same shape.
-    fn import_datas(
-        &mut self,
-        x: &Array2<f64>,
-        y: &Array2<f64>,
-        test_ratio: Option<f64>,
-    ) -> &mut Self;
+    fn import_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>, test_ratio: f64) -> &mut Self;
     // TODO documentation for `import_train_datas` and `import_test_datas`
     /// Import only training datas
     fn import_train_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self;
@@ -51,29 +46,16 @@ pub trait PublicCalls {
     fn get_architecture(&self) -> Architecture;
     /// Returns weights of given network.
     fn get_weights(&self) -> Weights;
-    /// Returns whether test is used or not.
-    fn get_is_test(&self) -> bool;
 }
 
 impl PublicCalls for crate::NNetwork {
-    fn import_datas(
-        &mut self,
-        x: &Array2<f64>,
-        y: &Array2<f64>,
-        test_ratio: Option<f64>,
-    ) -> &mut Self {
+    fn import_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>, test_ratio: f64) -> &mut Self {
         // Panics test
-        match test_ratio {
-            None => self.is_test = false,
-            Some(test_ratio) => {
-                if (test_ratio <= 0.) || (test_ratio >= 1.) {
-                    panic!(
-                        "test ratio must be between 0.0 and 1.0 (ratio = {})",
-                        test_ratio
-                    );
-                };
-                self.is_test = true
-            }
+        if (test_ratio <= 0.) || (test_ratio >= 1.) {
+            panic!(
+                "test ratio must be between 0.0 and 1.0 (ratio = {})",
+                test_ratio
+            );
         };
         if x.shape()[0] != y.shape()[0] {
             panic!(
@@ -85,46 +67,36 @@ impl PublicCalls for crate::NNetwork {
         trace!("Test ratio = {:?}", test_ratio);
 
         // Extract datas and set them
-        match test_ratio {
-            // In case we don't want test dataset
-            None => {
-                self.datas.test_x = array![[]];
-                self.datas.test_y = array![[]];
-                self.datas.train_x = x.to_owned();
-                self.datas.train_y = y.to_owned();
-            }
-            // In case we want a test dataset given by ratio
-            Some(test_ratio) => {
-                // Get the number of test datas
-                let mut test_number = (x.shape()[0] as f64 * test_ratio).round() as i32;
-                if test_number == 0 {
-                    test_number = 1;
-                } else if test_number == x.shape()[0] as i32 {
-                    test_number -= 1;
-                };
-                let mut train_number =
-                    (x.shape()[0] as f64 - x.shape()[0] as f64 * test_ratio).round() as i32;
-                if train_number == x.shape()[0] as i32 {
-                    train_number -= 1;
-                } else if train_number == 0 {
-                    train_number = 1;
-                }
 
-                // Extract and set datas
-                self.datas.test_x = x
-                    .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
-                    .to_owned();
-                self.datas.test_y = y
-                    .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
-                    .to_owned();
-                self.datas.train_x = x
-                    .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
-                    .to_owned();
-                self.datas.train_y = y
-                    .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
-                    .to_owned();
-            }
+        // Get the number of test datas
+        let mut test_number = (x.shape()[0] as f64 * test_ratio).round() as i32;
+        if test_number == 0 {
+            test_number = 1;
+        } else if test_number == x.shape()[0] as i32 {
+            test_number -= 1;
         };
+        let mut train_number =
+            (x.shape()[0] as f64 - x.shape()[0] as f64 * test_ratio).round() as i32;
+        if train_number == x.shape()[0] as i32 {
+            train_number -= 1;
+        } else if train_number == 0 {
+            train_number = 1;
+        }
+
+        // Extract and set datas
+        self.datas.test_x = x
+            .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
+            .to_owned();
+        self.datas.test_y = y
+            .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
+            .to_owned();
+        self.datas.train_x = x
+            .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
+            .to_owned();
+        self.datas.train_y = y
+            .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
+            .to_owned();
+
         self
     }
     fn import_train_datas(&mut self, x: &Array2<f64>, y: &Array2<f64>) -> &mut Self {
@@ -202,9 +174,6 @@ impl PublicCalls for crate::NNetwork {
     }
     fn get_weights(&self) -> Weights {
         self.weights.clone()
-    }
-    fn get_is_test(&self) -> bool {
-        self.is_test
     }
 }
 

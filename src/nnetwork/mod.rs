@@ -12,7 +12,6 @@ impl Default for NNetwork {
             grads: Default::default(),
             learning_rate: crate::DEFAULT_LN,
             epochs: crate::DEFAULT_EPOCHS,
-            is_test: false,
             epoch: 0,
         }
     }
@@ -44,6 +43,7 @@ impl NNetwork {
 
     /// ## Calculate weights errors
     // FIXME change maths operations : does not work well
+    // maybe need to implement batches ?
     pub fn grads(&mut self) {
         // Forward propagation to get network datas
         let y: Weights = self.feed_forward(&self.datas.train_x);
