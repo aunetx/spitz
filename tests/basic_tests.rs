@@ -40,9 +40,8 @@ fn import_datas() {
     let y = &array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
-    network.import_datas(x, y, Some(0.25));
+    network.import_datas(x, y, 0.25);
 
-    assert!(network.get_is_test());
     assert_eq!(network.datas.test_x, array![[3., 4., 5.]]);
     assert_eq!(network.datas.test_y, array![[3.]]);
     assert_eq!(
@@ -58,9 +57,8 @@ fn import_datas_no_test() {
     let y = &array![[0.], [1.], [2.], [3.]];
 
     let mut network = NNetwork::new();
-    network.import_datas(x, y, None);
+    network.import_train_datas(x, y);
 
-    assert!(!network.get_is_test());
     assert_eq!(network.datas.test_x, array![[]]);
     assert_eq!(network.datas.test_y, array![[]]);
     assert_eq!(&network.datas.train_x, x);
@@ -95,31 +93,4 @@ fn test_relu() {
         array![[0., 1., 0., 1.], [1., 1., 0., 1.]],
         maths::activations::relu(x, true)
     );
-}
-
-#[test]
-fn train_xor() {
-    simple_logger::init_with_level(log::Level::Info).unwrap();
-    log::info!("Begun");
-    let x = &array![[0., 0.], [0., 1.], [1., 0.], [1., 1.]];
-    let y = &array![[0.], [1.], [1.], [0.]];
-
-    let mut network = NNetwork::new();
-    let _pred = network
-        .import_datas(x, y, None)
-        .input_layer(2)
-        .add_layer(4, Activation::Relu)
-        .add_layer(5, Activation::Sigmoid)
-        .add_layer(1, Activation::Sigmoid)
-        .set_learning_rate(0.3)
-        .set_epochs(1500)
-        .init()
-        .fit()
-        .feed_forward(&array![[0., 1.]])
-        .last()
-        .unwrap()
-        .clone();
-
-    log::info!("Done")
-    //assert_eq!(array![[1.]], pred);
 }
