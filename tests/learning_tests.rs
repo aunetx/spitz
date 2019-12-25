@@ -44,7 +44,7 @@ fn train_xor() {
     log::info!("Done");
 }
 
-fn show_image(imgs: &Array2<f64>, img_to_show: usize) {
+pub fn show_image(imgs: &Array2<f64>, img_to_show: usize) {
     for (id, &el) in imgs.iter().enumerate() {
         if id < (784 * img_to_show) {
             continue;
