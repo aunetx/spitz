@@ -11,7 +11,7 @@ static INIT: Once = Once::new();
 /// Setup function that is only run once, even if called multiple times.
 fn setup() {
     INIT.call_once(|| {
-        simple_logger::init_with_level(log::Level::Warn).unwrap();
+        simple_logger::init_with_level(log::Level::Debug).unwrap();
     });
 }
 
@@ -42,28 +42,52 @@ fn train_xor() {
         .clone();
 
     log::info!("Done");
-    //assert_eq!(*y, _pred);
+}
+
+fn show_image(imgs: &Array2<f64>, img_to_show: usize) {
+    for (id, &el) in imgs.iter().enumerate() {
+        if id < (784 * img_to_show) {
+            continue;
+        } else if id >= 784 * (img_to_show + 1) {
+            break;
+        } else if id % 28 == 0 {
+            println!();
+        } else if el == 0. {
+            print!("   ");
+        } else if el < 0.25 {
+            print!(" . ");
+        } else if el < 0.5 {
+            print!(" * ");
+        } else if el < 0.75 {
+            print!("***");
+        } else {
+            print!("&&&")
+        }
+    }
+    println!();
 }
 
 #[test]
 fn train_mnist() {
     setup();
     log::warn!("Init");
-    let (test_labels, test_images, train_labels, train_images) = mnist_extractor::get_all();
+    let (test_labels, test_images, train_labels, train_images) = &mnist_extractor::get_all();
+
+    //show_image(test_images, 9);
 
     log::warn!("Begun");
 
     let mut network = NNetwork::new();
     let pred = network
-        .import_train_datas(&train_images, &train_labels)
-        .import_test_datas(&test_images, &test_labels)
+        .import_train_datas(train_images, train_labels)
+        .import_test_datas(test_images, test_labels)
         .input_layer(784)
         .add_layer(10, Activation::Linear)
         .set_learning_rate(0.03)
         .set_epochs(5)
         .init()
         .fit()
-        .feed_forward(&test_images)
+        .feed_forward(test_images)
         .last()
         .unwrap()
         .clone();
@@ -71,4 +95,5 @@ fn train_mnist() {
     log::debug!("PRED = {:8.4}", pred);
 
     log::warn!("Done");
+    panic!();
 }
