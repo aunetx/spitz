@@ -34,12 +34,14 @@ pub trait PublicCalls {
     fn set_learning_rate(&mut self, rate: f64) -> &mut Self;
     /// Set epochs number.
     fn set_epochs(&mut self, epochs: i32) -> &mut Self;
-    /// Add a layer to the architecture
+    /// Set the number of datas per batch.
+    fn set_batches(&mut self, batches: i32) -> &mut Self;
+    /// Add a layer to the architecture.
     fn add_layer(&mut self, neurons: usize, activation: maths::Activation) -> &mut Self;
-    /// Define input layer size of the architecture
+    /// Define input layer size of the architecture.
     fn input_layer(&mut self, neurons: usize) -> &mut Self;
 
-    // ## Init each part of the network
+    /// Init each part of the network.
     fn init(&mut self) -> &mut Self;
 
     /// Returns architecture of given network.
@@ -84,16 +86,16 @@ impl PublicCalls for crate::NNetwork {
         }
 
         // Extract and set datas
-        self.datas.test_x = x
+        self.datas_raw.test_x = x
             .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
             .to_owned();
-        self.datas.test_y = y
+        self.datas_raw.test_y = y
             .slice_axis(Axis(0), ndarray::Slice::from(-test_number..))
             .to_owned();
-        self.datas.train_x = x
+        self.datas_raw.train_x = x
             .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
             .to_owned();
-        self.datas.train_y = y
+        self.datas_raw.train_y = y
             .slice_axis(Axis(0), ndarray::Slice::from(0..train_number))
             .to_owned();
 
@@ -110,8 +112,8 @@ impl PublicCalls for crate::NNetwork {
         };
 
         // Extract datas and set them
-        self.datas.train_x = x.to_owned();
-        self.datas.train_y = y.to_owned();
+        self.datas_raw.train_x = x.to_owned();
+        self.datas_raw.train_y = y.to_owned();
 
         self
     }
@@ -126,8 +128,8 @@ impl PublicCalls for crate::NNetwork {
         };
 
         // Extract datas and set them
-        self.datas.test_x = x.to_owned();
-        self.datas.test_y = y.to_owned();
+        self.datas_raw.test_x = x.to_owned();
+        self.datas_raw.test_y = y.to_owned();
 
         self
     }
@@ -139,6 +141,11 @@ impl PublicCalls for crate::NNetwork {
     fn set_epochs(&mut self, epochs: i32) -> &mut Self {
         self.epochs = epochs as usize;
         trace!("Epochs number set : {:?}", epochs);
+        self
+    }
+    fn set_batches(&mut self, batches: i32) -> &mut Self {
+        self.batches = batches as usize;
+        trace!("Batches number set : {:?}", batches);
         self
     }
     fn add_layer(&mut self, neurons: usize, activation: maths::Activation) -> &mut Self {
@@ -160,6 +167,9 @@ impl PublicCalls for crate::NNetwork {
         self
     }
     fn init(&mut self) -> &mut Self {
+        // Init `datas` from `datas_raw`
+        self.datas.from_datas_raw(&self.datas_raw, self.batches);
+        // Init weights
         self.init_weights();
         // Init grads array
         for _ in 0..self.weights.len() {

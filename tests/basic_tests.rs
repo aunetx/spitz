@@ -35,37 +35,6 @@ fn init_weights() {
 }
 
 #[test]
-fn import_datas() {
-    let x = &array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
-    let y = &array![[0.], [1.], [2.], [3.]];
-
-    let mut network = NNetwork::new();
-    network.import_datas(x, y, 0.25);
-
-    assert_eq!(network.datas.test_x, array![[3., 4., 5.]]);
-    assert_eq!(network.datas.test_y, array![[3.]]);
-    assert_eq!(
-        network.datas.train_x,
-        array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.]]
-    );
-    assert_eq!(network.datas.train_y, array![[0.], [1.], [2.]]);
-}
-
-#[test]
-fn import_datas_no_test() {
-    let x = &array![[0., 1., 2.], [1., 2., 3.], [2., 3., 4.], [3., 4., 5.]];
-    let y = &array![[0.], [1.], [2.], [3.]];
-
-    let mut network = NNetwork::new();
-    network.import_train_datas(x, y);
-
-    assert_eq!(network.datas.test_x, array![[]]);
-    assert_eq!(network.datas.test_y, array![[]]);
-    assert_eq!(&network.datas.train_x, x);
-    assert_eq!(&network.datas.train_y, y);
-}
-
-#[test]
 #[allow(clippy::float_cmp)]
 fn set_learning_rate() {
     let mut network = NNetwork::new();
@@ -78,8 +47,16 @@ fn set_learning_rate() {
 fn set_epochs() {
     let mut network = NNetwork::new();
 
-    network.set_epochs(15);
-    assert_eq!(network.epochs, 15);
+    network.set_epochs(25);
+    assert_eq!(network.epochs, 25);
+}
+
+#[test]
+fn set_batches() {
+    let mut network = NNetwork::new();
+
+    network.set_batches(25);
+    assert_eq!(network.batches, 25);
 }
 
 #[test]

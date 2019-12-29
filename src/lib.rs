@@ -8,6 +8,7 @@ const WEIGHTS_INIT_MIN: f64 = -0.2;
 const WEIGHTS_INIT_MAX: f64 = 0.2;
 const DEFAULT_LN: f64 = 0.03;
 const DEFAULT_EPOCHS: usize = 15;
+const DEFAULT_BATCHES: usize = 15;
 
 // ndarray
 use ndarray::prelude::*;
@@ -33,10 +34,13 @@ pub use types::*;
 pub struct NNetwork {
     pub learning_rate: f64,
     pub epochs: usize,
+    pub batches: usize,
+    pub datas_raw: DatasRaw,
     pub datas: Datas,
     // Private; is used internally
     weights: Weights,
     architecture: Architecture,
-    epoch: usize,
     grads: Weights,
+    epoch: usize,
+    batch: usize,
 }

@@ -32,10 +32,9 @@ fn train_xor() {
         .add_layer(1, Activation::Sigmoid)
         .set_learning_rate(0.3)
         .set_epochs(10)
+        .set_batches(1)
         .init()
-        .print_weights()
         .fit()
-        .print_weights()
         .feed_forward(x)
         .last()
         .unwrap()
@@ -45,12 +44,8 @@ fn train_xor() {
 }
 
 pub fn show_image(imgs: &Array2<f64>, img_to_show: usize) {
-    for (id, &el) in imgs.iter().enumerate() {
-        if id < (784 * img_to_show) {
-            continue;
-        } else if id >= 784 * (img_to_show + 1) {
-            break;
-        } else if id % 28 == 0 {
+    for (id, &el) in imgs.row(img_to_show).iter().enumerate() {
+        if id % 28 == 0 {
             println!();
         } else if el == 0. {
             print!("   ");
@@ -71,9 +66,10 @@ pub fn show_image(imgs: &Array2<f64>, img_to_show: usize) {
 fn train_mnist() {
     setup();
     log::warn!("Init");
+
     let (test_labels, test_images, train_labels, train_images) = &mnist_extractor::get_all();
 
-    //show_image(test_images, 9);
+    //show_image(test_images, 1);
 
     log::warn!("Begun");
 
@@ -82,9 +78,10 @@ fn train_mnist() {
         .import_train_datas(train_images, train_labels)
         .import_test_datas(test_images, test_labels)
         .input_layer(784)
-        .add_layer(10, Activation::Linear)
+        .add_layer(10, Activation::Sigmoid)
         .set_learning_rate(0.03)
         .set_epochs(5)
+        .set_batches(10)
         .init()
         .fit()
         .feed_forward(test_images)
@@ -95,5 +92,4 @@ fn train_mnist() {
     log::debug!("PRED = {:8.4}", pred);
 
     log::warn!("Done");
-    panic!();
 }

@@ -1,45 +1,26 @@
 use ndarray::prelude::Array2;
 
 /// Utilitaries for activation functions.
+// TODO remove this mod if not used at all
 mod utils {
-    /// Returns `x` if `x > 0`, else `0`.
-    #[inline]
-    pub fn max(x: f64) -> f64 {
-        if x < 0. {
-            0.
-        } else {
-            x
-        }
-    }
-
-    /// Returns `1` if `x > 0`, else `0`.
-    #[inline]
-    pub fn sup(x: f64) -> f64 {
-        if x < 0. {
-            0.
-        } else {
-            1.
-        }
-    }
-
     /// Returns `1 / (1 + exp( -x ))`.
     #[inline]
-    pub fn sig(a: f64) -> f64 {
-        1. / (1. + (-a).exp())
+    pub fn sig(x: f64) -> f64 {
+        1. / (1. + (-x).exp())
     }
 }
 
 pub fn relu(x: Array2<f64>, derivative: bool) -> Array2<f64> {
     if !derivative {
-        x.mapv(utils::max)
+        x.mapv(|x| if x < 0. { 0. } else { x })
     } else {
-        x.mapv(utils::sup)
+        x.mapv(|x| if x < 0. { 0. } else { 1. })
     }
 }
 
 pub fn sigmoid(x: Array2<f64>, derivative: bool) -> Array2<f64> {
     if !derivative {
-        x.mapv(|a| utils::sig(a) * (1. - utils::sig(a)))
+        x.mapv(|x| utils::sig(x) * (1. - utils::sig(x)))
     } else {
         x.mapv(utils::sig)
     }
