@@ -1,7 +1,5 @@
 extern crate mnist_extractor;
-extern crate ndarray;
 extern crate simple_logger;
-extern crate spitz;
 use ndarray::prelude::*;
 use spitz::*;
 
