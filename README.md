@@ -37,7 +37,7 @@ Its dependencies are :
 
 But, if you use cargo, they will be automatically imported during compilation.
 
-Also, for the moment you need to have the package [`libopenblas-dev`](https://www.openblas.net/) and its dependencies installed on your computer : it provides really fast matrix operations. It will later be optionnal, although recommended.\
+Also, for the moment you need to have the package [`libopenblas-dev`](https://www.openblas.net/) and its dependencies installed on your computer : it provides really fast matrix operations. It will later be optionnal, although recommended.
 
 Under `ubuntu` and its derivatives : `apt install libopenblas-base libopenblas-dev gfortran`.
 
@@ -148,7 +148,7 @@ simple_logger::init_with_level(log::Level::Debug).unwrap();
 ### Predict with your network
 
 For the moment, predicting with the network is not as easy (but just need a decent implementation).\
-So, you can use the `feed_forward` method that the network uses during training.\
+So, you can use the `feed_forward` method that the network uses during training.
 
 Its output is the entire feed forwarded network, so you will need to manually get the last element of the network (as it is the output layer).
 
@@ -162,7 +162,7 @@ network.feed_forward(x)
 ## Contributing
 
 Please feel *free* to contribute to that project, fork it, clone it, make it suffer, do whatever you want actually.\
-And if you find bugs, please open an issue and make pull requests if you want to.\
+And if you find bugs, please open an issue and make pull requests if you want to.
 
 Sincerely yours,\
 -- aunetx --
